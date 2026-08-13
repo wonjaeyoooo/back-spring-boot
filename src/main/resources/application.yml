@@ -27,6 +27,11 @@ spring:
     password: back1234
     driver-class-name: org.postgresql.Driver
 
+  data:
+    redis:
+      host: localhost
+      port: 6379
+
   jpa:
     hibernate:
       # Flyway가 스키마를 관리하므로 Hibernate는 엔티티-테이블 일치 여부만 검증
