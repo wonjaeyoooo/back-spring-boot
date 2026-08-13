@@ -29,12 +29,17 @@ spring:
 
   jpa:
     hibernate:
-      ddl-auto: update
+      # Flyway가 스키마를 관리하므로 Hibernate는 엔티티-테이블 일치 여부만 검증
+      ddl-auto: validate
     open-in-view: false
     properties:
       hibernate:
         format_sql: true
     show-sql: true
+
+  flyway:
+    # 마이그레이션 히스토리가 없는 기존 스키마가 있으면 자동으로 baseline 처리
+    baseline-on-migrate: true
 
 mybatis:
   mapper-locations: classpath:mapper/**/*.xml
