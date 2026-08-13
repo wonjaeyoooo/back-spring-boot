@@ -1,0 +1,13 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "type": "java",
+      "name": "Debug BackSpringBootApplication",
+      "request": "launch",
+      "mainClass": "com.example.back.BackSpringBootApplication",
+      "projectName": "back-spring-boot",
+      "console": "integratedTerminal"
+    }
+  ]
+}

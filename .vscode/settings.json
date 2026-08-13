@@ -1,0 +1,18 @@
+{
+  // Java: Maven 설정을 자동으로 읽어 클래스패스 동기화
+  "java.configuration.updateBuildConfiguration": "automatic",
+  "java.compile.nullAnalysis.mode": "automatic",
+  "java.debug.settings.console": "integratedTerminal",
+  "java.import.gradle.enabled": false,
+  "java.import.maven.enabled": true,
+
+  // 파일 관리: 빌드 산출물은 탐색기에서 숨김
+  "files.exclude": {
+    "**/target/": true
+  },
+
+  "files.encoding": "utf8",
+  "editor.formatOnSave": true,
+  "editor.tabSize": 4,
+  "editor.insertSpaces": true
+}

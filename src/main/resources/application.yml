@@ -1,0 +1,43 @@
+spring:
+  application:
+    name: back-spring-boot
+  profiles:
+    # 로컬 개발용 프로파일을 기본값으로 활성화 (프로덕션에서는 --spring.profiles.active=prod 등으로 재정의)
+    active: local
+
+server:
+  port: 8080
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health, info
+
+---
+# 로컬 개발용 프로파일
+spring:
+  config:
+    activate:
+      on-profile: local
+
+  datasource:
+    url: jdbc:postgresql://localhost:5432/back_spring_boot
+    username: back
+    password: back1234
+    driver-class-name: org.postgresql.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    open-in-view: false
+    properties:
+      hibernate:
+        format_sql: true
+    show-sql: true
+
+mybatis:
+  mapper-locations: classpath:mapper/**/*.xml
+  type-aliases-package: com.example.back.domain
+  configuration:
+    map-underscore-to-camel-case: true
