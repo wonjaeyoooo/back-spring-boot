@@ -32,6 +32,9 @@ spring:
       host: localhost
       port: 6379
 
+  kafka:
+    bootstrap-servers: localhost:9092
+
   jpa:
     hibernate:
       # Flyway가 스키마를 관리하므로 Hibernate는 엔티티-테이블 일치 여부만 검증
