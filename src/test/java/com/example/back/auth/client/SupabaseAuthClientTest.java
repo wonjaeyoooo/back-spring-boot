@@ -5,6 +5,7 @@ import static org.springframework.test.web.client.match.MockRestRequestMatchers.
 import static org.springframework.test.web.client.match.MockRestRequestMatchers.jsonPath;
 import static org.springframework.test.web.client.match.MockRestRequestMatchers.method;
 import static org.springframework.test.web.client.match.MockRestRequestMatchers.requestTo;
+import static org.springframework.test.web.client.response.MockRestResponseCreators.withNoContent;
 import static org.springframework.test.web.client.response.MockRestResponseCreators.withSuccess;
 
 import org.junit.jupiter.api.Test;
@@ -96,6 +97,18 @@ class SupabaseAuthClientTest {
 		mockServer.verify();
 		assertThat(session.getAccessToken()).isEqualTo("eyJ.stub");
 		assertThat(session.getRefreshToken()).isEqualTo("stub-refresh");
+	}
+
+	@Test
+	void sendsLogoutWithBearerAuthorizationHeader() {
+		mockServer.expect(requestTo("https://stub.supabase.co/auth/v1/logout"))
+			.andExpect(method(HttpMethod.POST))
+			.andExpect(header(org.springframework.http.HttpHeaders.AUTHORIZATION, "Bearer access-token-abc"))
+			.andRespond(withNoContent());
+
+		client.logout("access-token-abc");
+
+		mockServer.verify();
 	}
 
 	private String fullSessionJson() {
