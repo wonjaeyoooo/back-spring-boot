@@ -65,4 +65,12 @@ public class AuthService {
 		syncUserFromSession(session, null);
 		return session;
 	}
+
+	public SupabaseSession refresh(String refreshToken) {
+		return supabaseAuthClient.refresh(refreshToken);
+	}
+
+	public void logout(String accessToken) {
+		supabaseAuthClient.logout(accessToken);
+	}
 }
