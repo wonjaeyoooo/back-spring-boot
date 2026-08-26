@@ -84,6 +84,20 @@ class SupabaseAuthClientTest {
 		assertThat(session.getUser().getEmail()).isEqualTo("user@example.com");
 	}
 
+	@Test
+	void sendsRefreshTokenGrantAndParsesRotatedSession() {
+		mockServer.expect(requestTo("https://stub.supabase.co/auth/v1/token?grant_type=refresh_token"))
+			.andExpect(method(HttpMethod.POST))
+			.andExpect(jsonPath("$.refresh_token").value("old-refresh-token"))
+			.andRespond(withSuccess(fullSessionJson(), MediaType.APPLICATION_JSON));
+
+		SupabaseSession session = client.refresh("old-refresh-token");
+
+		mockServer.verify();
+		assertThat(session.getAccessToken()).isEqualTo("eyJ.stub");
+		assertThat(session.getRefreshToken()).isEqualTo("stub-refresh");
+	}
+
 	private String fullSessionJson() {
 		return """
 			{

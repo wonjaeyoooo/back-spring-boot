@@ -1,5 +1,6 @@
 package com.example.back.auth.client;
 
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClient;
@@ -27,6 +28,24 @@ public class SupabaseAuthClient {
 	public SupabaseSession login(String email, String password) {
 		return execute("/auth/v1/token?grant_type=password",
 			new EmailPasswordPayload(email, password), SupabaseSession.class);
+	}
+
+	/** refresh 토큰은 절대 저장하지 않고 GoTrue에 전달해 회전된 새 세션만 돌려받는다 */
+	public SupabaseSession refresh(String refreshToken) {
+		return execute("/auth/v1/token?grant_type=refresh_token",
+			new RefreshTokenPayload(refreshToken), SupabaseSession.class);
+	}
+
+	public void logout(String accessToken) {
+		try {
+			supabaseRestClient.post()
+				.uri("/auth/v1/logout")
+				.header(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken)
+				.retrieve()
+				.toBodilessEntity();
+		} catch (RestClientResponseException exception) {
+			throw toAuthException(exception);
+		}
 	}
 
 	private <T> T execute(String uri, Object payload, Class<T> responseType) {
