@@ -19,8 +19,8 @@ public class CurrentUserService {
 	private final UserService userService;
 
 	/**
-	 * sub가 UUID 형식이 아니면 토큰 자체를 신뢰할 수 없는 것으로 보고
-	 * 500이 아니라 인증 실패(401)로 전환한다.
+	 * sub가 UUID 형식이 아니거나 email 클레임이 없으면 토큰을 신뢰할 수 없는 것으로 보고
+	 * 500이 아니라 인증 실패(401)로 전환한다. Supabase 인증 토큰은 항상 email을 포함한다.
 	 */
 	public User resolve(String subject, String email) {
 		final UUID supabaseUserId;
@@ -28,6 +28,9 @@ public class CurrentUserService {
 			supabaseUserId = UUID.fromString(subject);
 		} catch (IllegalArgumentException | NullPointerException exception) {
 			throw new SupabaseAuthException(401, "INVALID_TOKEN_SUBJECT", exception);
+		}
+		if (email == null || email.isBlank()) {
+			throw new SupabaseAuthException(401, "MISSING_EMAIL_CLAIM", null);
 		}
 		return userService.syncUser(supabaseUserId, email, null);
 	}
