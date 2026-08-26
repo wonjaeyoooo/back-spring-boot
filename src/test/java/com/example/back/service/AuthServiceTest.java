@@ -15,6 +15,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import com.example.back.auth.client.SupabaseAuthClient;
+import com.example.back.auth.dto.LoginRequest;
 import com.example.back.auth.dto.SignupRequest;
 import com.example.back.auth.dto.SupabaseSession;
 
@@ -68,5 +69,25 @@ class AuthServiceTest {
 
 		assertThat(result.sessionCreated()).isTrue();
 		assertThat(result.session().getAccessToken()).isEqualTo("eyJ.access");
+	}
+
+	@Test
+	void loginSyncsUserAndReturnsSession() {
+		SupabaseSession session = new SupabaseSession();
+		session.setAccessToken("eyJ.login");
+		SupabaseSession.SupabaseUser user = new SupabaseSession.SupabaseUser();
+		user.setId(UUID.randomUUID().toString());
+		user.setEmail("login@example.com");
+		session.setUser(user);
+		when(supabaseAuthClient.login(anyString(), anyString())).thenReturn(session);
+
+		LoginRequest loginRequest = new LoginRequest();
+		loginRequest.setEmail("login@example.com");
+		loginRequest.setPassword("secret123");
+
+		SupabaseSession result = authService.login(loginRequest);
+
+		assertThat(result.getAccessToken()).isEqualTo("eyJ.login");
+		verify(userService).syncUser(UUID.fromString(user.getId()), "login@example.com", null);
 	}
 }

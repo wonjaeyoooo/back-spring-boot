@@ -7,7 +7,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.back.auth.dto.AuthSessionResponse;
+import com.example.back.auth.dto.LoginRequest;
 import com.example.back.auth.dto.SignupRequest;
+import com.example.back.auth.dto.SupabaseSession;
 import com.example.back.service.AuthService;
 
 import jakarta.validation.Valid;
@@ -38,6 +40,17 @@ public class AuthController {
 				.sessionCreated(true)
 				.accessToken(result.session().getAccessToken())
 				.refreshToken(result.session().getRefreshToken())
+				.build());
+	}
+
+	@PostMapping("/login")
+	public ResponseEntity<AuthSessionResponse> login(@Valid @RequestBody LoginRequest request) {
+		SupabaseSession session = authService.login(request);
+		return ResponseEntity.ok()
+			.body(AuthSessionResponse.builder()
+				.sessionCreated(true)
+				.accessToken(session.getAccessToken())
+				.refreshToken(session.getRefreshToken())
 				.build());
 	}
 }

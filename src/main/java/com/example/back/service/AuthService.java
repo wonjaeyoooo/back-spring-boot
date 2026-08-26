@@ -5,6 +5,8 @@ import java.util.UUID;
 import org.springframework.stereotype.Service;
 
 import com.example.back.auth.client.SupabaseAuthClient;
+import com.example.back.auth.client.SupabaseAuthException;
+import com.example.back.auth.dto.LoginRequest;
 import com.example.back.auth.dto.SignupRequest;
 import com.example.back.auth.dto.SupabaseSession;
 
@@ -47,5 +49,20 @@ public class AuthService {
 			UUID.fromString(session.getUser().getId()),
 			session.getUser().getEmail(),
 			nickname);
+	}
+
+	public SupabaseSession login(LoginRequest request) {
+		SupabaseSession session;
+		try {
+			session = supabaseAuthClient.login(request.getEmail(), request.getPassword());
+		} catch (SupabaseAuthException exception) {
+			// 자격증명 실패는 사용자 존재 여부를 추론할 수 없도록 항상 균일한 401로 응답한다
+			if (exception.getHttpStatus() == 400 || exception.getHttpStatus() == 403) {
+				throw new SupabaseAuthException(401, "AUTHENTICATION_FAILED", exception);
+			}
+			throw exception;
+		}
+		syncUserFromSession(session, null);
+		return session;
 	}
 }
