@@ -118,7 +118,8 @@ class SupabaseAuthClientTest {
 	void mapsGoTrue400ToAuthExceptionPreservingStatusWithoutRawMessage() {
 		mockServer.expect(requestTo("https://stub.supabase.co/auth/v1/signup"))
 			.andRespond(withStatus(HttpStatus.BAD_REQUEST)
-				.body("{\"code\":400,\"msg\":\"Email rate limit exceeded\"}", MediaType.APPLICATION_JSON));
+				.contentType(MediaType.APPLICATION_JSON)
+				.body("{\"code\":400,\"msg\":\"Email rate limit exceeded\"}"));
 
 		assertThatThrownBy(() -> client.signup("rate-limited@example.com", "secret123"))
 			.isInstanceOfSatisfying(SupabaseAuthException.class, exception -> {
