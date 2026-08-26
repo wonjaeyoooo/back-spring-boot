@@ -1,15 +1,18 @@
 package com.example.back.auth.client;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.springframework.test.web.client.match.MockRestRequestMatchers.header;
 import static org.springframework.test.web.client.match.MockRestRequestMatchers.jsonPath;
 import static org.springframework.test.web.client.match.MockRestRequestMatchers.method;
 import static org.springframework.test.web.client.match.MockRestRequestMatchers.requestTo;
 import static org.springframework.test.web.client.response.MockRestResponseCreators.withNoContent;
+import static org.springframework.test.web.client.response.MockRestResponseCreators.withStatus;
 import static org.springframework.test.web.client.response.MockRestResponseCreators.withSuccess;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.client.MockRestServiceServer;
 import org.springframework.web.client.RestClient;
@@ -109,6 +112,33 @@ class SupabaseAuthClientTest {
 		client.logout("access-token-abc");
 
 		mockServer.verify();
+	}
+
+	@Test
+	void mapsGoTrue400ToAuthExceptionPreservingStatusWithoutRawMessage() {
+		mockServer.expect(requestTo("https://stub.supabase.co/auth/v1/signup"))
+			.andRespond(withStatus(HttpStatus.BAD_REQUEST)
+				.body("{\"code\":400,\"msg\":\"Email rate limit exceeded\"}", MediaType.APPLICATION_JSON));
+
+		assertThatThrownBy(() -> client.signup("rate-limited@example.com", "secret123"))
+			.isInstanceOfSatisfying(SupabaseAuthException.class, exception -> {
+				assertThat(exception.getHttpStatus()).isEqualTo(400);
+				assertThat(exception.getCode()).isEqualTo("AUTHENTICATION_FAILED");
+				assertThat(exception.getMessage()).doesNotContain("rate limit");
+			});
+		mockServer.verify();
+	}
+
+	@Test
+	void mapsGoTrue500ToGenericAuthError() {
+		mockServer.expect(requestTo("https://stub.supabase.co/auth/v1/token?grant_type=password"))
+			.andRespond(withStatus(HttpStatus.INTERNAL_SERVER_ERROR));
+
+		assertThatThrownBy(() -> client.login("user@example.com", "secret123"))
+			.isInstanceOfSatisfying(SupabaseAuthException.class, exception -> {
+				assertThat(exception.getHttpStatus()).isEqualTo(500);
+				assertThat(exception.getCode()).isEqualTo("SUPABASE_AUTH_ERROR");
+			});
 	}
 
 	private String fullSessionJson() {
