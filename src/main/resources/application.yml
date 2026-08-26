@@ -4,6 +4,19 @@ spring:
   profiles:
     # 로컬 개발용 프로파일을 기본값으로 활성화 (프로덕션에서는 --spring.profiles.active=prod 등으로 재정의)
     active: local
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          # Supabase JWKS 공개키 엔드포인트 — 기동 시 즉시 fetch 하지 않고 첫 JWT 검증 시 지연 fetch 함
+          jwk-set-uri: ${supabase.jwks-uri}
+
+# Supabase 인증 설정 — 실제 값은 환경변수로 주입 (비밀 하드코딩 금지)
+supabase:
+  base-url: ${SUPABASE_BASE_URL:https://placeholder.supabase.co}
+  publishable-key: ${SUPABASE_PUBLISHABLE_KEY:placeholder-publishable-key}
+  jwks-uri: ${SUPABASE_JWKS_URI:https://placeholder.supabase.co/auth/v1/.well-known/jwks.json}
+  issuer: ${SUPABASE_ISSUER:https://placeholder.supabase.co/auth/v1}
 
 server:
   port: 8080
