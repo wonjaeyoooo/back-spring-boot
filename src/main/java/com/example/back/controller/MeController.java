@@ -10,6 +10,8 @@ import com.example.back.auth.dto.MeResponse;
 import com.example.back.domain.User;
 import com.example.back.service.CurrentUserService;
 
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 
 /**
@@ -21,6 +23,8 @@ public class MeController {
 
 	private final CurrentUserService currentUserService;
 
+	@Operation(summary = "내 정보 조회")
+	@SecurityRequirement(name = "BearerAuth")
 	@GetMapping("/api/me")
 	public ResponseEntity<MeResponse> me(@AuthenticationPrincipal Jwt jwt) {
 		User user = currentUserService.resolve(jwt.getSubject(), jwt.getClaimAsString("email"));
