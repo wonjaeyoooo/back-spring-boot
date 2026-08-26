@@ -68,4 +68,31 @@ class SupabaseAuthClientTest {
 		assertThat(session.getExpiresIn()).isEqualTo(3600);
 		assertThat(session.getRefreshToken()).isEqualTo("stub-refresh");
 	}
+
+	@Test
+	void sendsPasswordGrantLoginToTokenEndpoint() {
+		mockServer.expect(requestTo("https://stub.supabase.co/auth/v1/token?grant_type=password"))
+			.andExpect(method(HttpMethod.POST))
+			.andExpect(jsonPath("$.email").value("user@example.com"))
+			.andExpect(jsonPath("$.password").value("secret123"))
+			.andRespond(withSuccess(fullSessionJson(), MediaType.APPLICATION_JSON));
+
+		SupabaseSession session = client.login("user@example.com", "secret123");
+
+		mockServer.verify();
+		assertThat(session.getAccessToken()).isEqualTo("eyJ.stub");
+		assertThat(session.getUser().getEmail()).isEqualTo("user@example.com");
+	}
+
+	private String fullSessionJson() {
+		return """
+			{
+			  "access_token": "eyJ.stub",
+			  "expires_in": 3600,
+			  "refresh_token": "stub-refresh",
+			  "token_type": "bearer",
+			  "user": {"id":"11111111-2222-3333-4444-555555555555","email":"user@example.com"}
+			}
+			""";
+	}
 }
