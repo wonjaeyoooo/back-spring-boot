@@ -47,6 +47,9 @@ public class SecurityConfig {
 				// 인증 API 자체는 물론 공개 (logout은 컨트롤러에서 Authorization 헤더 유무를 검증)
 				.requestMatchers("/api/auth/signup", "/api/auth/login", "/api/auth/refresh", "/api/auth/logout")
 				.permitAll()
+				// 오류 디스패치(/error)도 익명으로 통과시켜야 405·415 같은 원래 상태 코드가
+				// 보안 계층의 401로 가려지지 않는다
+				.requestMatchers("/error").permitAll()
 				// 그 외 모든 요청은 유효한 Supabase JWT 필요
 				.anyRequest().authenticated());
 		return http.build();
