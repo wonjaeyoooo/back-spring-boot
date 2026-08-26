@@ -17,8 +17,8 @@ public class SupabaseClientConfig {
 	private final SupabaseProperties supabaseProperties;
 
 	@Bean
-	public RestClient supabaseRestClient(RestClient.Builder builder) {
-		return builder
+	public RestClient supabaseRestClient() {
+		return RestClient.builder()
 			.baseUrl(supabaseProperties.getBaseUrl())
 			.defaultHeader("apikey", supabaseProperties.getPublishableKey())
 			.build();
